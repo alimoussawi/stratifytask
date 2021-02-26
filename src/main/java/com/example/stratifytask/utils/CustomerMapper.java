@@ -22,7 +22,7 @@ public class CustomerMapper {
     }
 
     private static LocalDate getDate(String date) {
-        return LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/y"));
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/yy"));
     }
 
     private static double getTotal(String total) {
