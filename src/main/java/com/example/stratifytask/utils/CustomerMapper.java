@@ -1,14 +1,11 @@
 package com.example.stratifytask.utils;
 
 import com.example.stratifytask.models.*;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 
 /** a helper class to make CustomerDTO mapping to Customer easier*/
-@Slf4j
 public class CustomerMapper {
     public static Customer toCustomer(CustomerDTO customerDTO) {
         return new Customer(customerDTO.getCustomerName(),
@@ -25,7 +22,7 @@ public class CustomerMapper {
     }
 
     private static LocalDate getDate(String date) {
-        return LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/yy"));
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("M/d/y"));
     }
 
     private static double getTotal(String total) {

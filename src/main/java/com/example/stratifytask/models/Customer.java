@@ -20,6 +20,7 @@ public class Customer {
     private long id;
     private String customerName;
     private LocalDate bookingDate;
+    @Column(unique = true)
     private String opportunityID;
     private BookingType bookingType;
     private double total;

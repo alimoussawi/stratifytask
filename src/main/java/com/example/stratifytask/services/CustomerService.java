@@ -27,8 +27,14 @@ import java.util.stream.Collectors;
 @Service
 public class CustomerService {
 
+    private CustomerRepository customerRepository;
+    private FileInfoService fileInfoService;
+
     @Autowired
-    CustomerRepository customerRepository;
+    public CustomerService(CustomerRepository customerRepository,FileInfoService fileInfoService){
+        this.customerRepository=customerRepository;
+        this.fileInfoService=fileInfoService;
+    }
 
     public ResponseEntity<List<Customer>> saveCustomers(MultipartFile csvFile) {
         if (csvFile.isEmpty()||!csvFile.getContentType().equals("text/csv")) {
@@ -40,6 +46,8 @@ public class CustomerService {
                 // create csv bean reader
                 CsvToBean csvToBean = new CsvToBeanBuilder<>(reader).withType(CustomerDTO.class)
                         .withIgnoreLeadingWhiteSpace(true)
+
+                        //Filter for empty rows in the CSV file
                         .withFilter((String[] strings) -> {
                             for (String one : strings) {
                                 if (one != null && one.length() > 0) {
@@ -53,12 +61,18 @@ public class CustomerService {
                 List<CustomerDTO> customerDTOS = csvToBean.parse();
 
                 // Map CustomerDTO to Customer Objects with appropriate data types to be saved in the DB
+                //Filter for duplicates in the same file
                 List<Customer> customers = customerDTOS.stream().map(CustomerMapper::toCustomer).filter(distinctByKey(Customer::getOpportunityID)).collect(Collectors.toList());
+
+                //remove redundant customers by OpportunityID
+                customers.removeIf(customer -> customerRepository.findCustomerByOpportunityID(customer.getOpportunityID())!=null);
+
+                fileInfoService.saveFileInfo(csvFile);
                 return new ResponseEntity<>(customerRepository.saveAll(customers),HttpStatus.CREATED);
             } catch (Exception ex) {
                 log.error("An error occurred while processing the CSV file.");
                 log.error(ex.getMessage());
-                return new ResponseEntity<>(Collections.emptyList(),HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -67,7 +81,7 @@ public class CustomerService {
         return new ResponseEntity<>(customerRepository.findAll(spec), HttpStatus.OK);
     }
 
-    public static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
         Map<Object, Boolean> seen = new ConcurrentHashMap<>();
         return t -> seen.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
     }

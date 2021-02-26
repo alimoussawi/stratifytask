@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer,Long> , JpaSpecificationExecutor<Customer> {
     List<Customer> findAll(Specification specification);
-
+    Customer findCustomerByOpportunityID(String opportunityID);
 }
