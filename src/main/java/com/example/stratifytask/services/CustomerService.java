@@ -9,6 +9,7 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,9 +38,10 @@ public class CustomerService {
     }
 
     public ResponseEntity<List<Customer>> saveCustomers(MultipartFile csvFile) {
+        HttpHeaders responseHeaders = new HttpHeaders();
         if (csvFile.isEmpty()||!csvFile.getContentType().equals("text/csv")) {
             log.error("file not provided or does not match the predefined structure");
-            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(Collections.emptyList(), responseHeaders, HttpStatus.BAD_REQUEST);
         } else {
             // parse CSV file to create a list of `CustomerDTO` objects
             try (Reader reader = new BufferedReader(new InputStreamReader(csvFile.getInputStream()))) {
@@ -68,17 +70,17 @@ public class CustomerService {
                 customers.removeIf(customer -> customerRepository.findCustomerByOpportunityID(customer.getOpportunityID())!=null);
 
                 fileInfoService.saveFileInfo(csvFile);
-                return new ResponseEntity<>(customerRepository.saveAll(customers),HttpStatus.CREATED);
+                return new ResponseEntity<>(customerRepository.saveAll(customers), responseHeaders, HttpStatus.CREATED);
             } catch (Exception ex) {
                 log.error("An error occurred while processing the CSV file.");
                 log.error(ex.getMessage());
-                return new ResponseEntity<>(Collections.emptyList(), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(Collections.emptyList(), responseHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
     }
 
-    public ResponseEntity<List<Customer>> getCustomers(Specification<Customer> spec){
-        return new ResponseEntity<>(customerRepository.findAll(spec), HttpStatus.OK);
+    public List<Customer> getCustomers(Specification<Customer> spec) {
+        return customerRepository.findAll(spec);
     }
 
     private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {

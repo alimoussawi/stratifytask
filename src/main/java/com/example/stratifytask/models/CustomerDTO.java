@@ -18,7 +18,7 @@ public class CustomerDTO {
     @CsvBindByName(column = "OpportunityID")
     private String opportunityID;
     @CsvBindByName(column = "BookingType")
-    private String bookingType;//enum
+    private String bookingType;
     @CsvBindByName(column = "Total")
     private String total;
     @CsvBindByName(column = "AccountExecutive")

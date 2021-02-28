@@ -1,15 +1,23 @@
 package com.example.stratifytask.repositories;
 
 import com.example.stratifytask.models.Customer;
+import com.example.stratifytask.models.Team;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer,Long> , JpaSpecificationExecutor<Customer> {
+public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
     List<Customer> findAll(Specification specification);
+
     Customer findCustomerByOpportunityID(String opportunityID);
+
+    /*used for test cases*/
+    List<Customer> findAllByTeamEquals(Team team);
+
+    List<Customer> findAllByBookingDateBetween(LocalDate start, LocalDate end);
 }

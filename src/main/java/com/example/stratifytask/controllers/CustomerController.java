@@ -8,13 +8,16 @@ import net.kaczmarzyk.spring.data.jpa.web.annotation.And;
 import net.kaczmarzyk.spring.data.jpa.web.annotation.Spec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping(value = "/api", produces = "application/json")
 public class CustomerController {
 
     private CustomerService customerService;
@@ -31,8 +34,8 @@ public class CustomerController {
 
     @GetMapping("/opportunity")
     public ResponseEntity<List<Customer>> getCustomers(@And({@Spec(path = "team", params = "team", spec = Equal.class), @Spec(path = "product", params = "product", spec = Equal.class), @Spec(path = "bookingType", params = "bookingType", spec = Equal.class), @Spec(path = "bookingDate", params = {"startDate", "endDate"}, spec = Between.class)}) Specification<Customer> spec) {
-
-        return customerService.getCustomers(spec);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        return ResponseEntity.ok().headers(responseHeaders).body(customerService.getCustomers(spec));
     }
 
 
