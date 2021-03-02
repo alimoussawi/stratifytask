@@ -16,8 +16,4 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
 
     Customer findCustomerByOpportunityID(String opportunityID);
 
-    /*used for test cases*/
-    List<Customer> findAllByTeamEquals(Team team);
-
-    List<Customer> findAllByBookingDateBetween(LocalDate start, LocalDate end);
 }
